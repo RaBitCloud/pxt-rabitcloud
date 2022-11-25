@@ -30,7 +30,6 @@ function sterileReplace(input: string): string {
 //% weight=100 color="#3854dc"
 namespace rabitcloud {
 
-
     const MSG_INIT_T = 'it';
     const MSG_INIT_R = 'ir';
     const MSG_HTTP_T = 'ht';
@@ -119,12 +118,11 @@ namespace rabitcloud {
     /**
      * init bridge, shall only call once on start
      */
-    //% block="on init rabitconnect"
-    export function onRabitConnectInit(): void {
+    //% block="init rabitcloud"
+    export function initRabitBLE(): void {
         if (isConnected) {
             return
         }
-        // isConnected = false;
         bluetooth.startUartService();
 
         bluetooth.onBluetoothConnected(() => {
@@ -251,7 +249,7 @@ namespace rabitcloud {
      */
     //% topblock=false
     //% handlerStatement=true
-    //% block="send push message with eventid $eventId by method $method to recipient $recipient using template $template with URL encoded data: $data"
+    //% block="send courier message with eventid $eventId by method $method to recipient $recipient using template $template with URL encoded data: $data"
     export function notificationSend(eventId: string, method: string, recipient: string, template: string, data: string): void{
         bluetooth.uartWriteLine(`${MSG_COURIER_T}:${sterile(eventId)}:${method}:${sterile(recipient)}:${sterile(template)}:${sterileReplace(data)}`)
     }
