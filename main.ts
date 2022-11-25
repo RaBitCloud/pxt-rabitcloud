@@ -24,7 +24,10 @@ function sterileReplace(input: string): string {
     return input.replace(':', '%3A');
 }
 
-//% color="#3854dc"
+/**
+* Custom blocks
+*/
+//% weight=100 color="#3854dc"
 namespace rabitcloud {
 
 
