@@ -27,7 +27,7 @@ function sterileReplace(input: string): string {
 /**
 * Custom blocks
 */
-//% weight=100 color="#3854dc"
+//% weight=200 color="#3854dc"
 namespace rabitcloud {
 
     const MSG_INIT_T = 'it';
@@ -110,6 +110,7 @@ namespace rabitcloud {
      * set init handler
      * @param initHandler 
      */
+    //% topblock=true
     //% block="set optional init handler"
     export function setRabitInitHandler(initHandler: (error: string) => void): void {
         _initHandler = initHandler;
