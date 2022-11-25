@@ -1,6 +1,8 @@
 
 > Open this page at [https://RaBitCloud.github.io/pxt-rabitcloud/](https://RaBitCloud.github.io/pxt-rabitcloud/)
 
+![icon.png](icon.png)
+
 ## Use as Extension
 
 This repository can be added as an **extension** in MakeCode.
@@ -10,8 +12,7 @@ This repository can be added as an **extension** in MakeCode.
 * click on **Extensions** under the gearwheel menu
 * search for **https://github.com/RaBitCloud/pxt-rabit** and import
 
-## Edit this project ![Build status badge](https://github.com/RaBitCloud/pxt-rabitcloud
-rabitcloud/workflows/MakeCode/badge.svg)
+## Edit this project ![Build status badge](https://github.com/RaBitCloud/pxt-rabitcloud/workflows/MakeCode/badge.svg)
 
 To edit this repository in MakeCode.
 
