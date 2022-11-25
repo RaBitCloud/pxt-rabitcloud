@@ -1,5 +1,5 @@
 {
-    "name": "rabitcloud",
+    "name": "pxt-rabitcloud",
     "description": "Provide Radio Internet Bridge for micro:bit",
     "dependencies": {
         "core": "*",
