@@ -64,6 +64,8 @@ namespace rabitcloud {
     let isConnected = false;
 
     let _initHandler: (error: string) => void = null
+    
+    var subscriptions = Array<string>();
 
     function onDataReceive(){
         let tmp = bluetooth.uartReadUntil(UART_DELIMITER);
@@ -74,6 +76,9 @@ namespace rabitcloud {
                 case MSG_INIT_R:
                     if (parts[1].length < 1) {
                         isConnected = true;
+                        for(let i = 0; i < subscriptions.length; i++){
+                            bluetooth.uartWriteLine(subscriptions[i])
+                        }
                         if (_initHandler != null) {
                             _initHandler('')
                         }
@@ -181,7 +186,9 @@ namespace rabitcloud {
     //% block="subscribe MQTT $topic"
     export function subscribeMqtt(topic: string, handler: (status: number, payload: string) => void): void {
         callbacks[topic] = handler;
-        bluetooth.uartWriteLine(`${MSG_MQTT_SUB_T}:${sterile(topic)}`);
+        let msg = `${MSG_MQTT_SUB_T}:${sterile(topic)}`;
+        bluetooth.uartWriteLine(msg);
+        subscriptions.push(msg);
     }
 
     /**
@@ -202,7 +209,9 @@ namespace rabitcloud {
     //% block="subscribe local topic $topic"
     export function subscribeLocal(topic: string, handler: (status: number, payload: string) => void): void {
         callbacks[topic] = handler;
-        bluetooth.uartWriteLine(`${MSG_LAN_SUB_T}:${sterile(topic)}`);
+        let msg = `${MSG_LAN_SUB_T}:${sterile(topic)}`;
+        bluetooth.uartWriteLine(msg);
+        subscriptions.push(msg);
     }
 
     /**v
