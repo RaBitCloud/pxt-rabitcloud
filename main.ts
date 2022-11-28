@@ -27,8 +27,17 @@ function sterileReplace(input: string): string {
 /**
 * Custom blocks
 */
-//% weight=200 color="#3854dc"
+//% weight=100 color="#3854dc"
 namespace rabitcloud {
+
+    // 
+    // let evt_conn: number = 0;
+    // let evt_bgt: number = 0;
+    
+    let isDebug = false;
+
+    const CR = "\r";
+    const NL = "\n";
 
     const MSG_INIT_T = 'it';
     const MSG_INIT_R = 'ir';
@@ -63,31 +72,34 @@ namespace rabitcloud {
 
     let isConnected = false;
 
-    let _initHandler: (error: string) => void = null
+    let _initHandler: (success: boolean) => void = null
     
-    var subscriptions = Array<string>();
+    let subscriptions : string[] = [];
 
-    function onDataReceive(){
-        let tmp = bluetooth.uartReadUntil(UART_DELIMITER);
-        tmp = tmp.substr(0, tmp.length - 1);
-        let parts = tmp.split(UART_SEPARATOR);
-        if (parts.length > 1) { // 2 parts or move
-            switch (parts[0]) {
-                case MSG_INIT_R:
-                    if (parts[1].length < 1) {
-                        isConnected = true;
-                        for(let i = 0; i < subscriptions.length; i++){
-                            bluetooth.uartWriteLine(subscriptions[i])
-                        }
-                        if (_initHandler != null) {
-                            _initHandler('')
-                        }
-                    } else {
-                        if (_initHandler != null) {
-                            _initHandler(parts[1])
+    function processLine(msg: String){
+        let parts = msg.split(UART_SEPARATOR);
+        if (parts.length > 0) { // 2 parts or move
+            if(parts[0] == MSG_INIT_R){
+                if (parts[1].length < 1) {
+                    isConnected = true;
+                    for(let i = 0; i < subscriptions.length; i++){
+                        bluetooth.uartWriteLine(subscriptions[i]);// prevent new mobile do not know
+                        if(isDebug){
+                            serial.writeLine(`re-subs:${subscriptions[i]}`);
                         }
                     }
-                    break;
+                    if (_initHandler != null) {
+                        _initHandler(true)
+                    }
+                } else {
+                    if (_initHandler != null) {
+                        _initHandler(false)
+                    }
+                }
+                return;
+            }
+            if(parts.length > 1){
+                switch (parts[0]) {
                 case MSG_HTTP_R:
                 // case MSG_IFTTT_R:
                 // case MSG_WHENGATE_R:
@@ -107,7 +119,28 @@ namespace rabitcloud {
                         callbacks[parts[1]](+200, parts[2])
                     }
                     break;
+                }
             }
+        }
+    }
+
+    let uartIn = '';
+
+    function onDataReceive(){
+        let tmp = bluetooth.uartReadUntil(UART_DELIMITER);
+        if(isDebug){
+            serial.writeLine(`receive: ${tmp}`);
+        }
+        switch(tmp.charAt(tmp.length-1)){
+            case CR:
+            case NL:
+                uartIn += tmp.trim();
+                processLine(uartIn);
+                uartIn = '';
+                break;
+            default:
+                uartIn += tmp;
+                break;
         }
     }
     
@@ -117,28 +150,43 @@ namespace rabitcloud {
      */
     //% topblock=true
     //% block="set optional init handler"
-    export function setRabitInitHandler(initHandler: (error: string) => void): void {
+    export function setRabitInitHandler(initHandler: (success: boolean) => void): void {
         _initHandler = initHandler;
     }
 
     /**
      * init bridge, shall only call once on start
+     * @param debug
      */
-    //% block="init rabitcloud"
-    export function initRabitBLE(): void {
+    //% weight=100
+    //% block="init ra:bit with serial debug? $debug"
+    export function initRabitBLE(debug: boolean): void {
+        isDebug = debug;
+        if(isDebug){
+            serial.redirectToUSB();
+            serial.setBaudRate(BaudRate.BaudRate115200);
+        }
         if (isConnected) {
             return
         }
+        
         bluetooth.startUartService();
 
         bluetooth.onBluetoothConnected(() => {
+            isConnected = true;
             bluetooth.uartWriteString(MSG_INIT_T);
+            if(isDebug){
+                serial.writeLine("onBluetoothConnected")
+            }
         });
 
         bluetooth.onBluetoothDisconnected(() => {
             isConnected = false;
             if (_initHandler != null) {
-                _initHandler('disconnect')
+                _initHandler(false)
+            }
+            if(isDebug){
+                serial.writeLine("onBluetoothDisconnected")
             }
         });
 
@@ -147,7 +195,7 @@ namespace rabitcloud {
         });
 
         if (_initHandler != null) {
-            _initHandler('loading')
+            _initHandler(false)
         }
     }
 

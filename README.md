@@ -1,7 +1,9 @@
-
-> Open this page at [https://RaBitCloud.github.io/pxt-rabitcloud/](https://RaBitCloud.github.io/pxt-rabitcloud/)
-
 ![icon.png](icon.png)
+
+companion apps can be download from following location:
+* Android - **https://github.com/RaBitCloud/rabit-android-apk/releases/download/0.1.1/rabit-android.apk**
+* iOS - on road map
+* Linux - on road map
 
 ## Use as Extension
 
